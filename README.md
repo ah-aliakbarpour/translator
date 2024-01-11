@@ -1,0 +1,1 @@
+# Translate and display the result in Excel file (Google Translate Scraper)
