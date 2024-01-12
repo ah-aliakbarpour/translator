@@ -8,11 +8,16 @@ import (
 	"strings"
 )
 
+type GoogleTranslator struct {
+	Sl, Tl      string
+	SourceWords []string
+}
+
 const Domain = "https://translate.google.com"
 const TranslatedElementClass = "ryNqvb"
 
-// googleTranslate scrapes translated data
-func (translator *Translator) googleTranslate() (Result, error) {
+// Translate scrapes translated data from Google Translate
+func (translator *GoogleTranslator) Translate() (Result, error) {
 
 	service, err := startSeleniumService()
 	if err != nil {
@@ -37,48 +42,8 @@ func (translator *Translator) googleTranslate() (Result, error) {
 	return words, nil
 }
 
-func startSeleniumService() (*selenium.Service, error) {
-	// initialize a Chrome browser instance on port 4444
-	service, err := selenium.NewChromeDriverService("./chromedriver", 4444)
-	if err != nil {
-		return nil, fmt.Errorf("can't initialize a Chrome browser: %w", err)
-	}
-
-	return service, nil
-}
-
-func stopSeleniumService(service *selenium.Service) error {
-	err := service.Stop()
-	if err != nil {
-		return fmt.Errorf("can't stop selenium service: %w", err)
-	}
-	return nil
-}
-
-func setupSelenium() (selenium.WebDriver, error) {
-	// configure the browser options
-	caps := selenium.Capabilities{}
-	caps.AddChrome(chrome.Capabilities{Args: []string{
-		"--headless", // comment out this line for testing
-	}})
-
-	// create a new remote client with the specified options
-	driver, err := selenium.NewRemote(caps, "")
-	if err != nil {
-		return driver, fmt.Errorf("can't create a new remote client: %w", err)
-	}
-
-	// maximize the current window to avoid responsive rendering
-	err = driver.MaximizeWindow("")
-	if err != nil {
-		return driver, fmt.Errorf("can't maximize the window: %w", err)
-	}
-
-	return driver, nil
-}
-
 // getTranslatedWords iterates through SourceWords and stores the translation in result array
-func (translator *Translator) getTranslatedWords(driver selenium.WebDriver) (Result, error) {
+func (translator *GoogleTranslator) getTranslatedWords(driver selenium.WebDriver) (Result, error) {
 	results := make(Result)
 
 	for _, sourceWord := range translator.SourceWords {
@@ -124,7 +89,49 @@ func (translator *Translator) getTranslatedWords(driver selenium.WebDriver) (Res
 			// add the scraped data to the results
 			results[sourceWord] = append(results[sourceWord], translatedText)
 		}
+
+		fmt.Println(sourceWord, results[sourceWord])
 	}
 
 	return results, nil
+}
+
+func startSeleniumService() (*selenium.Service, error) {
+	// initialize a Chrome browser instance on port 4444
+	service, err := selenium.NewChromeDriverService("./chromedriver", 4444)
+	if err != nil {
+		return nil, fmt.Errorf("can't initialize a Chrome browser: %w", err)
+	}
+
+	return service, nil
+}
+
+func stopSeleniumService(service *selenium.Service) error {
+	err := service.Stop()
+	if err != nil {
+		return fmt.Errorf("can't stop selenium service: %w", err)
+	}
+	return nil
+}
+
+func setupSelenium() (selenium.WebDriver, error) {
+	// configure the browser options
+	caps := selenium.Capabilities{}
+	caps.AddChrome(chrome.Capabilities{Args: []string{
+		"--headless", // comment out this line for testing
+	}})
+
+	// create a new remote client with the specified options
+	driver, err := selenium.NewRemote(caps, "")
+	if err != nil {
+		return driver, fmt.Errorf("can't create a new remote client: %w", err)
+	}
+
+	// maximize the current window to avoid responsive rendering
+	err = driver.MaximizeWindow("")
+	if err != nil {
+		return driver, fmt.Errorf("can't maximize the window: %w", err)
+	}
+
+	return driver, nil
 }

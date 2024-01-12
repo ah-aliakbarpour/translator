@@ -15,7 +15,7 @@ const (
 )
 
 func main() {
-	translator := translate.Translator{
+	translator := translate.GoogleTranslator{
 		Sl:          DefaultSourceLanguage,
 		Tl:          DefaultTranslateLanguage,
 		SourceWords: []string{},
