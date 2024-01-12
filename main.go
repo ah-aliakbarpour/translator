@@ -15,25 +15,26 @@ const (
 )
 
 func main() {
-	var (
-		sourceLanguage    string
-		translateLanguage string
-		sourceWords       []string
-	)
+	translator := translate.Translator{
+		Sl:          DefaultSourceLanguage,
+		Tl:          DefaultTranslateLanguage,
+		SourceWords: []string{},
+	}
 
 	// get user inputs
 	fmt.Print("Enter source language (default is '" + DefaultSourceLanguage + "'): ")
-	fmt.Scanln(&sourceLanguage)
+	fmt.Scanln(&translator.Sl)
 	fmt.Print("Enter translate language (default is '" + DefaultTranslateLanguage + "'): ")
-	fmt.Scanln(&translateLanguage)
+	fmt.Scanln(&translator.Tl)
 	fmt.Println("Enter a comma-separated string containing the sourceWords to translate: ")
 	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	sourceWords = strings.Split(line, ",")
+	translator.SourceWords = strings.Split(line, ",")
 
 	// translate
-	translatedWords, err := translate.Translate(sourceLanguage, translateLanguage, sourceWords)
+	results, err := translator.Translate()
 	if err != nil {
 		log.Fatal("Translation failed, ", err)
 	}
-	fmt.Println(translatedWords)
+
+	fmt.Println(results)
 }

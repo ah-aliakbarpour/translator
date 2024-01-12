@@ -1,10 +1,12 @@
 package translate
 
-type Word struct {
-	Source     string
-	Translates []string
+type Translator struct {
+	Sl, Tl      string
+	SourceWords []string
 }
 
-func Translate(sourceLanguage, translateLanguage string, words []string) ([]Word, error) {
-	return []Word{}, nil
+type Result map[string][]string
+
+func (translator *Translator) Translate() (Result, error) {
+	return translator.googleTranslate()
 }
