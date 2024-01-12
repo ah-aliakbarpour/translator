@@ -1,1 +1,1 @@
-# Translate and display the result in Excel file (Google Translate Scraper)
+# Translate and export results in Excel file (Google Translate Scraper)
