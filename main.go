@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
+	"translator/translate"
 )
 
 const (
@@ -12,25 +14,26 @@ const (
 	DefaultTranslateLanguage = "fa"
 )
 
-type Inputs struct {
-	SourceLanguage    string
-	TranslateLanguage string
-	Words             []string
-}
-
 func main() {
-	inputs := Inputs{
-		DefaultSourceLanguage,
-		DefaultTranslateLanguage,
-		[]string{},
-	}
+	var (
+		sourceLanguage    string
+		translateLanguage string
+		sourceWords       []string
+	)
 
+	// get user inputs
 	fmt.Print("Enter source language (default is '" + DefaultSourceLanguage + "'): ")
-	fmt.Scanln(&inputs.SourceLanguage)
+	fmt.Scanln(&sourceLanguage)
 	fmt.Print("Enter translate language (default is '" + DefaultTranslateLanguage + "'): ")
-	fmt.Scanln(&inputs.TranslateLanguage)
-
-	fmt.Println("Enter a comma-separated string containing the words to translate: ")
+	fmt.Scanln(&translateLanguage)
+	fmt.Println("Enter a comma-separated string containing the sourceWords to translate: ")
 	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	inputs.Words = strings.Split(line, ",")
+	sourceWords = strings.Split(line, ",")
+
+	// translate
+	translatedWords, err := translate.Translate(sourceLanguage, translateLanguage, sourceWords)
+	if err != nil {
+		log.Fatal("Translation failed, ", err)
+	}
+	fmt.Println(translatedWords)
 }
