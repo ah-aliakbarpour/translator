@@ -33,7 +33,7 @@ func (exporter *ExcelExporter) Export() error {
 		file.SetCellValue(SheetName, fmt.Sprintf("A%d", i+2), datum.Source)
 		for j, translation := range datum.Translations {
 			file.SetCellValue(SheetName, fmt.Sprintf("%s%d", string(rune(66+j)), i+2), translation)
-			if i == 24 {
+			if rune(66+j) == 'Z' {
 				break
 			}
 		}
