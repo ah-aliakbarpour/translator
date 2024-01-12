@@ -1,7 +1,10 @@
 package translate
 
-type Result map[string][]string
+type Result struct {
+	Source       string
+	Translations []string
+}
 
 type Translator interface {
-	Translate() (Result, error)
+	Translate() ([]Result, error)
 }

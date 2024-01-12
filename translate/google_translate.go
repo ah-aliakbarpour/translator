@@ -17,7 +17,7 @@ const Domain = "https://translate.google.com"
 const TranslatedElementClass = "ryNqvb"
 
 // Translate scrapes translated data from Google Translate
-func (translator *GoogleTranslator) Translate() (Result, error) {
+func (translator *GoogleTranslator) Translate() ([]Result, error) {
 
 	service, err := startSeleniumService()
 	if err != nil {
@@ -43,8 +43,8 @@ func (translator *GoogleTranslator) Translate() (Result, error) {
 }
 
 // scrapeTranslatedWords iterates through SourceWords and stores the translation in result array
-func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDriver) (Result, error) {
-	results := make(Result)
+func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDriver) ([]Result, error) {
+	var results []Result
 
 	for _, sourceWord := range translator.SourceWords {
 		sourceWord = strings.ToLower(strings.TrimSpace(sourceWord))
@@ -72,14 +72,13 @@ func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDri
 			return nil, fmt.Errorf("can't wait for translated element: %w", err)
 		}
 
-		results[sourceWord] = []string{}
-
 		// find the translated elements
 		translatedElements, err := driver.FindElements(selenium.ByCSSSelector, "."+TranslatedElementClass)
 		if err != nil {
 			log.Println("error finding element for'"+sourceWord+"':", err.Error())
-			continue
 		}
+
+		result := Result{Source: sourceWord}
 
 		for _, element := range translatedElements {
 			// extract the text of element
@@ -90,10 +89,10 @@ func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDri
 			}
 
 			// add the scraped data to the results
-			results[sourceWord] = append(results[sourceWord], translatedText)
+			result.Translations = append(result.Translations, translatedText)
 		}
-
-		fmt.Println(sourceWord, results[sourceWord])
+		results = append(results, result)
+		fmt.Println(result.Source, result.Translations)
 	}
 
 	return results, nil

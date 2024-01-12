@@ -3,13 +3,14 @@ package export
 import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	"sort"
 	"translator/translate"
 )
 
 const SheetName = "Sheet1"
 
 type ExcelExporter struct {
-	Data translate.Result
+	Data []translate.Result
 }
 
 func (exporter *ExcelExporter) Export() error {
@@ -22,17 +23,20 @@ func (exporter *ExcelExporter) Export() error {
 		file.SetCellValue(SheetName, fmt.Sprintf("%s%d", string(rune(65+i)), 1), header)
 	}
 
-	// write body
-	i := 2
-	for source, translations := range exporter.Data {
-		file.SetCellValue(SheetName, fmt.Sprintf("A%d", i), source)
-		for j, translation := range translations {
-			file.SetCellValue(SheetName, fmt.Sprintf("%s%d", string(rune(66+j)), i), translation)
-			if i == 26 {
+	// sort data A-Z
+	sort.Slice(exporter.Data, func(i, j int) bool {
+		return exporter.Data[i].Source < exporter.Data[j].Source
+	})
+
+	// write data
+	for i, datum := range exporter.Data {
+		file.SetCellValue(SheetName, fmt.Sprintf("A%d", i+2), datum.Source)
+		for j, translation := range datum.Translations {
+			file.SetCellValue(SheetName, fmt.Sprintf("%s%d", string(rune(66+j)), i+2), translation)
+			if i == 24 {
 				break
 			}
 		}
-		i++
 	}
 
 	// save file
