@@ -29,7 +29,7 @@ func (translator *GoogleTranslator) Translate() (Result, error) {
 		return nil, err
 	}
 
-	words, err := translator.getTranslatedWords(driver)
+	words, err := translator.scrapeTranslatedWords(driver)
 	if err != nil {
 		return nil, err
 	}
@@ -42,12 +42,15 @@ func (translator *GoogleTranslator) Translate() (Result, error) {
 	return words, nil
 }
 
-// getTranslatedWords iterates through SourceWords and stores the translation in result array
-func (translator *GoogleTranslator) getTranslatedWords(driver selenium.WebDriver) (Result, error) {
+// scrapeTranslatedWords iterates through SourceWords and stores the translation in result array
+func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDriver) (Result, error) {
 	results := make(Result)
 
 	for _, sourceWord := range translator.SourceWords {
-		sourceWord = strings.TrimSpace(sourceWord)
+		sourceWord = strings.ToLower(strings.TrimSpace(sourceWord))
+		if len(sourceWord) == 0 {
+			continue
+		}
 
 		// visit the target page
 		url := Domain + "/?sl=" + translator.Sl + "&tl=" + translator.Tl + "&text=" + sourceWord
