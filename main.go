@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"translator/export"
 	"translator/translate"
 )
 
@@ -36,5 +37,12 @@ func main() {
 		log.Fatal("Translation failed, ", err)
 	}
 
-	fmt.Println(results)
+	// export excel
+	exporter := export.ExcelExporter{
+		Data: results,
+	}
+	err = exporter.Export()
+	if err != nil {
+		log.Fatal("Export failed, ", err)
+	}
 }
