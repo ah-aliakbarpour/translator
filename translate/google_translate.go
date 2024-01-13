@@ -6,6 +6,7 @@ import (
 	"github.com/tebeka/selenium/chrome"
 	"log"
 	"strings"
+	"time"
 )
 
 type GoogleTranslator struct {
@@ -46,30 +47,33 @@ func (translator *GoogleTranslator) Translate() ([]Result, error) {
 func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDriver) ([]Result, error) {
 	var results []Result
 
-	for _, sourceWord := range translator.SourceWords {
-		sourceWord = strings.ToLower(strings.TrimSpace(sourceWord))
+	total := len(translator.SourceWords)
+	for i := 0; i < total; i++ {
+		sourceWord := strings.ToLower(strings.TrimSpace(translator.SourceWords[i]))
 		if len(sourceWord) == 0 {
 			continue
 		}
 
-		// visit the target page
-		url := Domain + "/?sl=" + translator.Sl + "&tl=" + translator.Tl + "&text=" + sourceWord
-		err := driver.Get(url)
-		if err != nil {
-			return nil, fmt.Errorf("can't visit the target page: %w", err)
-		}
-
-		// wait for the translated element to load
-		err = driver.Wait(func(driver selenium.WebDriver) (bool, error) {
-			translatedElement, _ := driver.FindElement(selenium.ByCSSSelector, "."+TranslatedElementClass)
-
-			if translatedElement != nil {
-				return true, nil
+		for {
+			// visit the target page
+			url := Domain + "/?sl=" + translator.Sl + "&tl=" + translator.Tl + "&text=" + sourceWord
+			err := driver.Get(url)
+			if err != nil {
+				return nil, fmt.Errorf("can't visit the target page: %w", err)
 			}
-			return false, nil
-		})
-		if err != nil {
-			return nil, fmt.Errorf("can't wait for translated element: %w", err)
+
+			// wait 10 second for the translated element except reload the page
+			err = driver.WaitWithTimeout(func(driver selenium.WebDriver) (bool, error) {
+				translatedElement, _ := driver.FindElement(selenium.ByCSSSelector, "."+TranslatedElementClass)
+
+				if translatedElement != nil {
+					return true, nil
+				}
+				return false, nil
+			}, 10*time.Second)
+			if err == nil {
+				break
+			}
 		}
 
 		// find the translated elements
@@ -92,7 +96,7 @@ func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDri
 			result.Translations = append(result.Translations, translatedText)
 		}
 		results = append(results, result)
-		fmt.Println(result.Source, result.Translations)
+		fmt.Printf("\n[%.0f%%] %v: %v\n\n", float64(i+1)/float64(total)*100, result.Source, result.Translations)
 	}
 
 	return results, nil
