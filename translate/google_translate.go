@@ -64,7 +64,7 @@ func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDri
 
 			// wait 10 second for the translated element except reload the page
 			err = driver.WaitWithTimeout(func(driver selenium.WebDriver) (bool, error) {
-				translatedElement, _ := driver.FindElement(selenium.ByCSSSelector, "."+TranslatedElementClass)
+				translatedElement, _ := driver.FindElement(selenium.ByClassName, TranslatedElementClass)
 
 				if translatedElement != nil {
 					return true, nil
@@ -77,7 +77,7 @@ func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDri
 		}
 
 		// find the translated elements
-		translatedElements, err := driver.FindElements(selenium.ByCSSSelector, "."+TranslatedElementClass)
+		translatedElements, err := driver.FindElements(selenium.ByClassName, TranslatedElementClass)
 		if err != nil {
 			log.Println("error finding element for'"+sourceWord+"':", err.Error())
 		}
