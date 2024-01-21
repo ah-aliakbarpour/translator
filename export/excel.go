@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"sort"
-	"translator/translate"
+	"translator/dictionary"
 )
 
 const SheetName = "Sheet1"
 
 type ExcelExporter struct {
-	Data []translate.Result
+	Data []dictionary.Result
 }
 
 func (exporter *ExcelExporter) Export() error {

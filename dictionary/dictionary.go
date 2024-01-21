@@ -1,10 +1,10 @@
-package translate
+package dictionary
 
 type Result struct {
 	Source       string
 	Translations []string
 }
 
-type Translator interface {
+type Dictionary interface {
 	Translate() ([]Result, error)
 }

@@ -1,4 +1,4 @@
-package translate
+package dictionary
 
 import (
 	"fmt"
@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-type GoogleTranslator struct {
+type GoogleTranslate struct {
 	Sl, Tl      string
 	SourceWords []string
 }
 
-const Domain = "https://translate.google.com"
+const Domain = "translate.google.com"
 const TranslatedElementClass = "ryNqvb"
 
-// Translate scrapes translated data from Google Translate
-func (translator *GoogleTranslator) Translate() ([]Result, error) {
+// Translate scrapes translations from Google Translate
+func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
 
 	service, err := startSeleniumService()
 	if err != nil {
@@ -30,7 +30,7 @@ func (translator *GoogleTranslator) Translate() ([]Result, error) {
 		return nil, err
 	}
 
-	words, err := translator.scrapeTranslatedWords(driver)
+	results, err := dictionary.scrapeResults(driver)
 	if err != nil {
 		return nil, err
 	}
@@ -40,23 +40,23 @@ func (translator *GoogleTranslator) Translate() ([]Result, error) {
 		return nil, err
 	}
 
-	return words, nil
+	return results, nil
 }
 
-// scrapeTranslatedWords iterates through SourceWords and stores the translation in result array
-func (translator *GoogleTranslator) scrapeTranslatedWords(driver selenium.WebDriver) ([]Result, error) {
+// scrapeResults iterates through SourceWords and stores the translation in result array
+func (dictionary *GoogleTranslate) scrapeResults(driver selenium.WebDriver) ([]Result, error) {
 	var results []Result
 
-	total := len(translator.SourceWords)
+	total := len(dictionary.SourceWords)
 	for i := 0; i < total; i++ {
-		sourceWord := strings.ToLower(strings.TrimSpace(translator.SourceWords[i]))
+		sourceWord := strings.ToLower(strings.TrimSpace(dictionary.SourceWords[i]))
 		if len(sourceWord) == 0 {
 			continue
 		}
 
 		for {
 			// visit the target page
-			url := Domain + "/?sl=" + translator.Sl + "&tl=" + translator.Tl + "&text=" + sourceWord
+			url := "https://" + Domain + "/?sl=" + dictionary.Sl + "&tl=" + dictionary.Tl + "&text=" + sourceWord
 			err := driver.Get(url)
 			if err != nil {
 				return nil, fmt.Errorf("can't visit the target page: %w", err)

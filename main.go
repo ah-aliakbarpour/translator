@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+	"translator/dictionary"
 	"translator/export"
-	"translator/translate"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 )
 
 func main() {
-	translator := translate.GoogleTranslator{
+	translator := dictionary.GoogleTranslate{
 		Sl:          DefaultSourceLanguage,
 		Tl:          DefaultTranslateLanguage,
 		SourceWords: []string{},
@@ -27,7 +27,7 @@ func main() {
 	fmt.Scanln(&translator.Sl)
 	fmt.Print("Enter translate language (default is '" + DefaultTranslateLanguage + "'): ")
 	fmt.Scanln(&translator.Tl)
-	fmt.Println("Enter a comma-separated string containing the sourceWords to translate: ")
+	fmt.Println("Enter sourceWords in a comma-separated string: ")
 	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 	translator.SourceWords = strings.Split(line, ",")
 
