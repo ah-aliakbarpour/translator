@@ -16,7 +16,7 @@ const (
 )
 
 func main() {
-	translator := dictionary.GoogleTranslate{
+	translator := dictionary.Glosbe{
 		Sl:          DefaultSourceLanguage,
 		Tl:          DefaultTranslateLanguage,
 		SourceWords: []string{},

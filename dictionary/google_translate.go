@@ -14,12 +14,8 @@ type GoogleTranslate struct {
 	SourceWords []string
 }
 
-const Domain = "translate.google.com"
-const TranslatedElementClass = "ryNqvb"
-
 // Translate scrapes translations from Google Translate
 func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
-
 	service, err := startSeleniumService()
 	if err != nil {
 		return nil, err
@@ -45,9 +41,12 @@ func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
 
 // scrapeResults iterates through SourceWords and stores the translation in result array
 func (dictionary *GoogleTranslate) scrapeResults(driver selenium.WebDriver) ([]Result, error) {
-	var results []Result
+	const Domain = "translate.google.com"
+	const TranslatedElementClass = "ryNqvb"
 
+	var results []Result
 	total := len(dictionary.SourceWords)
+
 	for i := 0; i < total; i++ {
 		sourceWord := strings.ToLower(strings.TrimSpace(dictionary.SourceWords[i]))
 		if len(sourceWord) == 0 {
@@ -92,11 +91,10 @@ func (dictionary *GoogleTranslate) scrapeResults(driver selenium.WebDriver) ([]R
 				continue
 			}
 
-			// add the scraped data to the results
 			result.Translations = append(result.Translations, translatedText)
 		}
 		results = append(results, result)
-		fmt.Printf("\n[%.0f%%] %v: %v\n\n", float64(i+1)/float64(total)*100, result.Source, result.Translations)
+		printStatus(float64(i+1)/float64(total)*100, result)
 	}
 
 	return results, nil
