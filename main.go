@@ -37,11 +37,11 @@ func main() {
 	}
 
 	// export excel
-	exporter := export.ExcelExporter{
-		Data: results,
-	}
-	err = exporter.Export()
+	exporter := export.NewExcel("translate", 'Z')
+	err = exporter.Export(results)
 	if err != nil {
 		log.Fatal("Export failed, ", err)
 	}
+
+	fmt.Printf("\nDone!\n")
 }

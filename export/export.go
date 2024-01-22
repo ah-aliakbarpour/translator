@@ -1,5 +1,7 @@
 package export
 
+import "translator/dictionary"
+
 type Exporter interface {
-	Export() error
+	Export(data []dictionary.Result) error
 }
