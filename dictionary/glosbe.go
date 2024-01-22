@@ -8,15 +8,14 @@ import (
 )
 
 type Glosbe struct {
-	Sl, Tl      string
-	SourceWords []string
+	SourceLanguage, TranslateLanguage string
 }
 
 // Translate scrapes translations from Glosbe dictionary
-func (dictionary *Glosbe) Translate() ([]Result, error) {
+func (dictionary *Glosbe) Translate(sourceWords []string) ([]Result, error) {
 	collector := colly.NewCollector()
 
-	results, err := dictionary.scrapeResults(collector)
+	results, err := dictionary.scrapeResults(collector, sourceWords)
 	if err != nil {
 		return nil, err
 	}
@@ -25,15 +24,15 @@ func (dictionary *Glosbe) Translate() ([]Result, error) {
 }
 
 // scrapeResults iterates through SourceWords and stores the translation in result array
-func (dictionary *Glosbe) scrapeResults(collector *colly.Collector) ([]Result, error) {
+func (dictionary *Glosbe) scrapeResults(collector *colly.Collector, sourceWords []string) ([]Result, error) {
 	const Domain = "glosbe.com"
 	const TranslatedElementClass = "translation__item__pharse"
 
 	var results []Result
-	total := len(dictionary.SourceWords)
+	total := len(sourceWords)
 
 	for i := 0; i < total; i++ {
-		sourceWord := strings.ToLower(strings.TrimSpace(dictionary.SourceWords[i]))
+		sourceWord := strings.ToLower(strings.TrimSpace(sourceWords[i]))
 		if len(sourceWord) == 0 {
 			continue
 		}
@@ -46,7 +45,10 @@ func (dictionary *Glosbe) scrapeResults(collector *colly.Collector) ([]Result, e
 		})
 
 		// visit the target page
-		url := "https://" + Domain + "/" + dictionary.Sl + "/" + dictionary.Tl + "/" + sourceWord
+		url := "https://" + Domain +
+			"/" + dictionary.SourceLanguage +
+			"/" + dictionary.TranslateLanguage +
+			"/" + sourceWord
 		err := collector.Visit(url)
 
 		if errors.Is(err, colly.ErrAlreadyVisited) {

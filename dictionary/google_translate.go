@@ -10,12 +10,11 @@ import (
 )
 
 type GoogleTranslate struct {
-	Sl, Tl      string
-	SourceWords []string
+	SourceLanguage, TranslateLanguage string
 }
 
 // Translate scrapes translations from Google Translate
-func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
+func (dictionary *GoogleTranslate) Translate(sourceWords []string) ([]Result, error) {
 	service, err := startSeleniumService()
 	if err != nil {
 		return nil, err
@@ -26,7 +25,7 @@ func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
 		return nil, err
 	}
 
-	results, err := dictionary.scrapeResults(driver)
+	results, err := dictionary.scrapeResults(driver, sourceWords)
 	if err != nil {
 		return nil, err
 	}
@@ -40,22 +39,25 @@ func (dictionary *GoogleTranslate) Translate() ([]Result, error) {
 }
 
 // scrapeResults iterates through SourceWords and stores the translation in result array
-func (dictionary *GoogleTranslate) scrapeResults(driver selenium.WebDriver) ([]Result, error) {
+func (dictionary *GoogleTranslate) scrapeResults(driver selenium.WebDriver, sourceWords []string) ([]Result, error) {
 	const Domain = "translate.google.com"
 	const TranslatedElementClass = "ryNqvb"
 
 	var results []Result
-	total := len(dictionary.SourceWords)
+	total := len(sourceWords)
 
 	for i := 0; i < total; i++ {
-		sourceWord := strings.ToLower(strings.TrimSpace(dictionary.SourceWords[i]))
+		sourceWord := strings.ToLower(strings.TrimSpace(sourceWords[i]))
 		if len(sourceWord) == 0 {
 			continue
 		}
 
 		for {
 			// visit the target page
-			url := "https://" + Domain + "/?sl=" + dictionary.Sl + "&tl=" + dictionary.Tl + "&text=" + sourceWord
+			url := "https://" + Domain +
+				"/?sl=" + dictionary.SourceLanguage +
+				"&tl=" + dictionary.TranslateLanguage +
+				"&text=" + sourceWord
 			err := driver.Get(url)
 			if err != nil {
 				return nil, fmt.Errorf("can't visit the target page: %w", err)

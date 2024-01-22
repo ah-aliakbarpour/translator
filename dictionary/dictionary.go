@@ -8,7 +8,7 @@ type Result struct {
 }
 
 type Dictionary interface {
-	Translate() ([]Result, error)
+	Translate(sourceWords []string) ([]Result, error)
 }
 
 func printStatus(percent float64, result Result) {

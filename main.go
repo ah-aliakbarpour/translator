@@ -17,22 +17,21 @@ const (
 
 func main() {
 	translator := dictionary.Glosbe{
-		Sl:          DefaultSourceLanguage,
-		Tl:          DefaultTranslateLanguage,
-		SourceWords: []string{},
+		SourceLanguage:    DefaultSourceLanguage,
+		TranslateLanguage: DefaultTranslateLanguage,
 	}
 
 	// get user inputs
 	fmt.Print("Enter source language (default is '" + DefaultSourceLanguage + "'): ")
-	fmt.Scanln(&translator.Sl)
+	fmt.Scanln(&translator.SourceLanguage)
 	fmt.Print("Enter translate language (default is '" + DefaultTranslateLanguage + "'): ")
-	fmt.Scanln(&translator.Tl)
+	fmt.Scanln(&translator.TranslateLanguage)
 	fmt.Println("Enter sourceWords in a comma-separated string: ")
 	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	translator.SourceWords = strings.Split(line, ",")
+	sourceWords := strings.Split(line, ",")
 
 	// translate
-	results, err := translator.Translate()
+	results, err := translator.Translate(sourceWords)
 	if err != nil {
 		log.Fatal("Translation failed, ", err)
 	}
