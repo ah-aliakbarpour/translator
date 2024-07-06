@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"strings"
+	"time"
 )
 
 type Glosbe struct {
@@ -43,6 +44,9 @@ func (dictionary *Glosbe) scrapeResults(collector *colly.Collector, sourceWords 
 		collector.OnHTML("."+TranslatedElementClass, func(e *colly.HTMLElement) {
 			result.Translations = append(result.Translations, strings.TrimSpace(e.Text))
 		})
+
+		// set request timeout
+		collector.SetRequestTimeout(time.Minute)
 
 		// visit the target page
 		url := "https://" + Domain +
