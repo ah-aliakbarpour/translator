@@ -46,7 +46,7 @@ func (dictionary *Glosbe) scrapeResults(collector *colly.Collector, sourceWords 
 		})
 
 		// set request timeout
-		collector.SetRequestTimeout(time.Minute)
+		collector.SetRequestTimeout(time.Second * 100)
 
 		// visit the target page
 		url := "https://" + Domain +
